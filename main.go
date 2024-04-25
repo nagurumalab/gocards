@@ -11,7 +11,10 @@ func main() {
 
 	var pile gocards.Pile
 	fmt.Println(pile)
-	ace_spade := gocards.Card{Suit: gocards.SPADES, Number: "1"}
-	pile.AddCard(ace_spade, -1)
+	ace_spade := gocards.Card{Suit: gocards.SPADES, Number: gocards.ACE}
+	pile.AddCardLast(ace_spade)
+	pile.AddCardFirst(ace_spade)
+	fmt.Println(pile)
+	pile.ShowAllCards()
 	fmt.Println(pile)
 }
