@@ -4,18 +4,18 @@ import (
 	"fmt"
 )
 
-type CardSuit int
+type Suit int
 
 const (
-	NOSUITE CardSuit = iota
+	NOSUITE Suit = iota
 	SPADES
 	HEARTS
 	DIAMONDS
 	CLUBS
 )
-const NOSUIT CardSuit = -1
+const NOSUIT Suit = -1
 
-func (cs CardSuit) String() string {
+func (cs Suit) String() string {
 	suites := [...]string{"-", "♠", "♥", "♦", "♣"}
 	if cs < NOSUITE || cs > CLUBS {
 		return "-"
@@ -23,10 +23,10 @@ func (cs CardSuit) String() string {
 	return suites[cs]
 }
 
-type CardNumber int
+type Number int
 
 const (
-	ACE CardNumber = iota + 1
+	ACE Number = iota + 1
 	TWO
 	THREE
 	FOUR
@@ -41,9 +41,9 @@ const (
 	KING
 )
 
-const JOKER CardNumber = -1
+const JOKER Number = -1
 
-func (cn CardNumber) String() string {
+func (cn Number) String() string {
 	pip := [...]string{"🃟", "A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"}
 	if cn < JOKER || cn > KING {
 		return "<INVALID>"
@@ -52,8 +52,8 @@ func (cn CardNumber) String() string {
 }
 
 type Card struct {
-	Suit   CardSuit
-	Number CardNumber
+	Suit   Suit
+	Number Number
 	Show   bool
 }
 
