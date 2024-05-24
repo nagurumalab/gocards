@@ -1,15 +1,22 @@
-# https://taskfile.dev
-
 version: '3'
 
+# Define the output binary name (optional)
 vars:
-  GREETING: Hello, World!
+  BINARY_NAME: cards
 
 tasks:
-  default:
+  clean:
     cmds:
-      - echo "{{.GREETING}}"
-    silent: true
+      - rm -rf {{.BINARY_NAME}} || true  # Clean up the built binary (ignore errors)
+
+  build:
+    # Ensure clean runs before build
+    deps: [ clean ]
+    cmds:
+      - go build -o {{.BINARY_NAME}} .  # Build the program
+
   run:
+    # Ensure build runs before run
+    deps: [ build ]
     cmds:
-      - go run main.go
+      - ./{{.BINARY_NAME}}  # Run the program
