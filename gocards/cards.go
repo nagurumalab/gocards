@@ -68,6 +68,10 @@ type Pile struct {
 	Cards []Card
 }
 
+func NewPile() *Pile {
+	return &Pile{}
+}
+
 func (pile *Pile) AddCard(card Card, idx int) {
 	if idx == -1 {
 		// log.Printf("idx is %d", idx)
