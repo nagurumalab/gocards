@@ -2,7 +2,7 @@ package handlers
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/nagurumalab/gocards/gocards"
+	//"github.com/nagurumalab/gocards/gocards"
 )
 
 func addSessionRoutes(rg *gin.RouterGroup) {
@@ -10,5 +10,5 @@ func addSessionRoutes(rg *gin.RouterGroup) {
 }
 
 func createSession(c *gin.Context) {
-	gocards.Session{}
+	//gocards.Session{}
 }
