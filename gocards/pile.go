@@ -112,7 +112,7 @@ func GetDeck(joker int) Pile {
 	}
 	i := 0
 	for i < joker {
-		pile.AddCardToEnd(Card{Suit: NOSUIT, Number: JOKER})
+		pile.AddCardToEnd(Card{Suit: NOSUITE, Number: JOKER})
 		i += 1
 	}
 	return pile
@@ -128,7 +128,7 @@ func GetDecks(n int, joker int) Pile {
 	}
 	i = 0
 	for i < joker {
-		deck.AddCardToEnd(Card{Suit: NOSUIT, Number: JOKER})
+		deck.AddCardToEnd(Card{Suit: NOSUITE, Number: JOKER})
 		i += 1
 	}
 	// fmt.Println(deck)

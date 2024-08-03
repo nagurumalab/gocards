@@ -13,7 +13,6 @@ const (
 	DIAMONDS
 	CLUBS
 )
-const NOSUIT Suit = -1
 
 func (cs Suit) String() string {
 	suites := [...]string{"-", "♠", "♥", "♦", "♣"}
@@ -26,7 +25,8 @@ func (cs Suit) String() string {
 type Number int
 
 const (
-	ACE Number = iota + 1
+	JOKER Number = iota
+	ACE
 	TWO
 	THREE
 	FOUR
@@ -40,8 +40,6 @@ const (
 	QUEEN
 	KING
 )
-
-const JOKER Number = 0
 
 func (cn Number) String() string {
 	pip := [...]string{"🃟", "A", "2", "3", "4", "5", "6",

@@ -50,7 +50,7 @@ func (game *Game) CurrentState() {
 
 }
 
-func (game *Game) Run() {
+func (game *Game) ActionHandler() {
 	log.Println("Starting the game and running the game loop")
 
 }

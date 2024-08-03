@@ -1,7 +1,6 @@
 package rummy
 
 import (
-	"fmt"
 	"log"
 
 	gc "github.com/nagurumalab/gocards/gocards"
@@ -62,14 +61,6 @@ func (r *Rummy) Start() {
 	// fmt.Println(r)
 }
 
-func (r *Rummy) getNextMove() {
-	r.State.NextMove = "END"
-}
+func (r *Rummy) HandleEvent() bool {
 
-func (r *Rummy) Run() {
-	r.Start()
-	for r.State.NextMove != "END" {
-		r.getNextMove()
-	}
-	fmt.Println("Game Ended")
 }
