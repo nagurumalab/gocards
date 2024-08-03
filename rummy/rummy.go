@@ -1,32 +1,34 @@
 package rummy
 
 import (
-	"log"
+	"errors"
 
 	gc "github.com/nagurumalab/gocards/gocards"
+	"github.com/rs/zerolog/log"
+)
+
+const (
+	CLS = "Closed"
+	DSC = "Discarded"
 )
 
 type Rummy struct {
 	gc.Game
-	JokerCard     gc.Card
-	DiscardedPile *gc.Pile
-	ClosedPile    *gc.Pile
+	JokerCard gc.Card
 }
 
 func NewRummy(players map[string]gc.Player) Rummy {
-	log.Println("Init a new Rummy game")
+	log.Info().Msg("Init a new Rummy game")
 	game := gc.NewGame(2, players)
-	log.Println("Initialized the game")
+	log.Info().Msg("Initialized the game")
 	r := Rummy{Game: game}
 	r.CardPiles = map[string]*gc.Pile{}
-	r.CardPiles["Discarded"] = &gc.Pile{}
-	r.DiscardedPile = r.CardPiles["Discarded"]
-	r.CardPiles["Closed"] = &gc.Pile{}
-	r.ClosedPile = r.CardPiles["Closed"]
+	r.CardPiles[CLS] = &gc.Pile{}
+	r.CardPiles[DSC] = &gc.Pile{}
 	for pId := range players {
 		r.CardPiles[pId] = &gc.Pile{}
 	}
-	log.Println("Initialized the cardpiles")
+	log.Info().Msg("Initialized the cardpiles")
 	return r
 }
 
@@ -34,33 +36,67 @@ func (r *Rummy) DealCards(fromPile *gc.Pile, numCards int) {
 	for i := range numCards {
 		_ = i
 		for playerId := range r.Players {
-			_, c := fromPile.RemoveCard(0)
-			r.CardPiles[playerId].AddCardToEnd(c)
+			c, _ := fromPile.GetCardEnd()
+			r.CardPiles[playerId].PutCardEnd(c)
 		}
 	}
+}
 
+func (r *Rummy) TakeCard() gc.Card {
+	card, err := r.CardPiles[CLS].GetCardEnd()
+	if err != nil {
+		log.Error().Err(err)
+		if errors.Is(err, gc.ErrRemoveEmptyPile) {
+			top_card, _ := r.CardPiles[DSC].GetCardEnd()
+			r.CardPiles[CLS], r.CardPiles[DSC] = r.CardPiles[DSC], r.CardPiles[CLS]
+			r.CardPiles[CLS].HideAllCards()
+			r.CardPiles[CLS].Shuffle()
+			r.CardPiles[DSC].PutCardEnd(top_card)
+			card, _ := r.CardPiles[CLS].GetCardEnd()
+			return card
+		}
+		// FIXME: Handle other Error if possible
+		return gc.Card{}
+	}
+	return card
+}
+
+func (r *Rummy) DropCard(card gc.Card) {
+	card.Show = true
+	r.CardPiles[DSC].PutCardEnd(card)
 }
 
 func (r *Rummy) Start() {
-	log.Println("Starting rummy")
-	log.Println("Getting Decks")
+	log.Info().Msg("Starting rummy")
+	log.Info().Msg("Getting Decks")
 	decks := gc.GetDecks(r.NumDecks, r.NumDecks)
-	log.Println("Shuffling Decks")
+	log.Info().Msg("Shuffling Decks")
 	decks.Shuffle()
 	// deal cards
-	r.CardPiles["Closed"], r.ClosedPile = &decks, &decks
-	r.DealCards(r.ClosedPile, 13)
-	_, r.JokerCard = r.ClosedPile.RemoveCard(0)
-	_, openCard := r.ClosedPile.RemoveCard(0)
+	r.CardPiles["Closed"], r.CardPiles[CLS] = &decks, &decks
+	r.DealCards(r.CardPiles[CLS], 13)
+
+	r.JokerCard, _ = r.CardPiles[CLS].GetCardEnd()
+
+	openCard, _ := r.CardPiles[CLS].GetCardEnd()
 	openCard.Show = true
-	*r.DiscardedPile = append(*r.DiscardedPile, openCard)
+	r.CardPiles[DSC].PutCardEnd(openCard)
+
 	r.State.NextMove = "START"
-	log.Println("Game Started")
+	log.Info().Msg("Game Started")
 	//fmt.Println("Game started")
-	log.Println(r)
+	log.Debug().Msgf("%s", r)
 	// fmt.Println(r)
 }
 
-func (r *Rummy) HandleEvent() bool {
-
+func (r *Rummy) HandleEvent(event interface{}) bool {
+	switch event := event.(type) {
+	case gc.TakeCard:
+		log.Debug().Msgf("Take Card Event has been passed - %v", event)
+		card, _ := r.CardPiles[CLS].GetCardEnd()
+		r.CardPiles[event.Event.Player.Id].PutCardEnd(card)
+	default:
+		log.Error().Msgf("Unsupported Event - %s", event)
+	}
+	return false
 }

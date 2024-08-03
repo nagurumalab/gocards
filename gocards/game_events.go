@@ -7,7 +7,8 @@ type Event struct {
 type TakeCard struct {
 	Event
 	FromPile Pile
-	Card     Card
+	FromTop  bool
+	NumCards int
 }
 
 type DropCard struct {

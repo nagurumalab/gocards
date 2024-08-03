@@ -12,4 +12,5 @@ func TestRummy(t *testing.T) {
 	player_2 := gc.Player{Id: "2", Name: "Murugan"}
 	newGame := rmy.NewRummy(map[string]gc.Player{player_1.Id: player_1, player_2.Id: player_2})
 	newGame.Start()
+	newGame.HandleEvent(gc.TakeCard{Event: gc.Event{Player: player_1}, FromPile: *newGame.CardPiles[rmy.CLS], FromTop: true, NumCards: 1})
 }

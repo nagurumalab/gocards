@@ -1,8 +1,9 @@
 package gocards
 
 import (
+	"errors"
 	"fmt"
-	"log"
+	"github.com/rs/zerolog/log"
 	"math/rand"
 	"strings"
 )
@@ -21,7 +22,8 @@ func (p Pile) String() string {
 	return sb.String()
 }
 
-func (pile *Pile) AddCard(card Card, idx int) {
+// TODO: Rewrite to handle the whole range of reverse index
+func (pile *Pile) PutCard(card Card, idx int) {
 	if idx == -1 {
 		// log.Printf("idx is %d", idx)
 		idx = len(*pile)
@@ -35,30 +37,51 @@ func (pile *Pile) AddCard(card Card, idx int) {
 	}
 }
 
-func (pile *Pile) AddCardToEnd(card Card) {
-	pile.AddCard(card, -1)
+func (pile *Pile) PutCardEnd(card Card) {
+	pile.PutCard(card, -1)
 }
 
-func (pile *Pile) AddCardToStart(card Card) {
-	pile.AddCard(card, 0)
+func (pile *Pile) PutCardStart(card Card) {
+	pile.PutCard(card, 0)
 }
 
-func (pile *Pile) RemoveCard(idx int) (bool, Card) {
+var ErrRemoveEmptyPile = errors.New("can't remove a card from empty pile")
+
+// TODO: Rewrite to handle the whole range of reverse index
+func (pile *Pile) GetCard(idx int) (Card, error) {
+	if idx == -1 {
+		idx = len(*pile)
+	}
 	if idx < len(*pile) && idx >= 0 {
 		removedCard := (*pile)[idx]
 		*pile = append((*pile)[:idx], (*pile)[idx+1:]...)
-		return true, removedCard
+		return removedCard, nil
 	}
-	return false, Card{}
+	return Card{}, ErrRemoveEmptyPile
 }
 
-func (pile *Pile) RemoveCards(idxs []int) Pile {
+func (pile *Pile) GetCardStart() (Card, error) {
+	return pile.GetCard(0)
+}
+
+func (pile *Pile) GetCardEnd() (Card, error) {
+	return pile.GetCard(-1)
+}
+
+// TODO: Rewite this whole function better
+func (pile *Pile) GetCards(idxs []int) Pile {
 	removedPile := Pile{}
+	// FIXME: BUG. Once a card is removed, the idxs change places and becomes invalid
+
 	for _, idx := range idxs {
-		removed, card := pile.RemoveCard(idx)
-		if removed {
-			removedPile.AddCardToEnd(card)
+		card, err := pile.GetCard(idx)
+		if err != nil {
+			if errors.Is(err, ErrRemoveEmptyPile) {
+				log.Info().Msgf("No more cards in the pile - %d", removedPile.Len())
+			}
+			break
 		}
+		removedPile.PutCardEnd(card)
 	}
 	return removedPile
 }
@@ -94,6 +117,16 @@ func (pile Pile) ShowAllCards() {
 	}
 }
 
+func (pile Pile) HideCard(idx int) {
+	pile[idx].Show = false
+}
+
+func (pile Pile) HideAllCards() {
+	for idx := range pile {
+		pile.HideCard(idx)
+	}
+}
+
 func (a Pile) Len() int      { return len(a) }
 func (a Pile) Swap(i, j int) { a[i], a[j] = a[j], a[i] }
 func (a Pile) Less(i, j int) bool {
@@ -107,12 +140,12 @@ func GetDeck(joker int) Pile {
 			ACE, TWO, THREE, FOUR, FIVE, SIX, SEVEN,
 			EIGHT, NINE, TEN, JACK, QUEEN, KING,
 		} {
-			pile.AddCardToEnd(Card{Suit: suit, Number: num})
+			pile.PutCardEnd(Card{Suit: suit, Number: num})
 		}
 	}
 	i := 0
 	for i < joker {
-		pile.AddCardToEnd(Card{Suit: NOSUITE, Number: JOKER})
+		pile.PutCardEnd(Card{Suit: NOSUITE, Number: JOKER})
 		i += 1
 	}
 	return pile
@@ -128,7 +161,7 @@ func GetDecks(n int, joker int) Pile {
 	}
 	i = 0
 	for i < joker {
-		deck.AddCardToEnd(Card{Suit: NOSUITE, Number: JOKER})
+		deck.PutCardEnd(Card{Suit: NOSUITE, Number: JOKER})
 		i += 1
 	}
 	// fmt.Println(deck)

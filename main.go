@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"log"
 	"net/http"
 	"os"
 	"os/signal"
@@ -10,9 +9,12 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/rs/zerolog"
+	"github.com/rs/zerolog/log"
 )
 
 func main() {
+	zerolog.TimeFieldFormat = zerolog.TimeFormatUnix
 	//r := gin.Default()
 
 	// var pile gocards.Pile
@@ -24,7 +26,7 @@ func main() {
 	// pile.ShowAllCards()
 	// fmt.Println(pile)
 
-	log.Println("Starting the server...")
+	log.Print("Starting the server...")
 	router := gin.Default()
 
 	router.POST("/api/session/")
@@ -37,7 +39,7 @@ func main() {
 	// Graceful server shutdown - https://github.com/gin-gonic/examples/blob/master/graceful-shutdown/graceful-shutdown/server.go
 	go func() {
 		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-			log.Fatalf("Failed to initialize server: %v\n", err)
+			log.Fatal().Msgf("Failed to initialize server: %v\n", err)
 		}
 	}()
 
@@ -57,9 +59,9 @@ func main() {
 	defer cancel()
 
 	// Shutdown server
-	log.Println("Shutting down server...")
+	log.Print("Shutting down server...")
 	if err := srv.Shutdown(ctx); err != nil {
-		log.Fatalf("Server forced to shutdown: %v\n", err)
+		log.Fatal().Msgf("Server forced to shutdown: %v\n", err)
 	}
 
 }
