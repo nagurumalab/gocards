@@ -9,27 +9,18 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/nagurumalab/gocards/handlers"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 )
 
 func main() {
 	zerolog.TimeFieldFormat = zerolog.TimeFormatUnix
-	//r := gin.Default()
-
-	// var pile gocards.Pile
-	// fmt.Println(pile)
-	// ace_spade := gocards.Card{Suit: gocards.SPADES, Number: gocards.ACE}
-	// pile.AddCardLast(ace_spade)
-	// pile.AddCardFirst(ace_spade)
-	// fmt.Println(pile)
-	// pile.ShowAllCards()
-	// fmt.Println(pile)
 
 	log.Print("Starting the server...")
 	router := gin.Default()
 
-	router.POST("/api/session/")
+	handlers.AddRoutes(&router.RouterGroup)
 
 	srv := &http.Server{
 		Addr:    ":8080",

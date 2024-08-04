@@ -1,19 +1,20 @@
 package gocards
 
 type Event struct {
+	Id     string
 	Player Player
 }
 
 type TakeCard struct {
 	Event
-	FromPile Pile
+	FromPile string
 	FromTop  bool
 	NumCards int
 }
 
 type DropCard struct {
 	Event
-	ToPile Pile
+	ToPile string
 	Card   Card
 }
 

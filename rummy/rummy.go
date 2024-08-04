@@ -92,11 +92,28 @@ func (r *Rummy) Start() {
 func (r *Rummy) HandleEvent(event interface{}) bool {
 	switch event := event.(type) {
 	case gc.TakeCard:
-		log.Debug().Msgf("Take Card Event has been passed - %v", event)
-		card, _ := r.CardPiles[CLS].GetCardEnd()
-		r.CardPiles[event.Event.Player.Id].PutCardEnd(card)
+		r.takecareHandler(event)
+	case gc.DropCard:
+		r.dropcardHandler(event)
 	default:
 		log.Error().Msgf("Unsupported Event - %s", event)
 	}
 	return false
+}
+
+func (r *Rummy) takecareHandler(event gc.TakeCard) {
+	log.Debug().Msgf("TakeCard - %v", event)
+	card, _ := r.CardPiles[CLS].GetCardEnd()
+	r.CardPiles[event.Player.Id].PutCardEnd(card)
+}
+
+func (r *Rummy) dropcardHandler(event gc.DropCard) {
+	log.Debug().Msgf("DropCard event - %v", event)
+	found, idx := r.CardPiles[event.Player.Id].SearchCard(event.Card)
+	if !found {
+		log.Error().Msgf("Dropping card not in hand")
+	} else {
+		card, _ := r.CardPiles[event.Player.Id].GetCard(idx)
+		r.DropCard(card)
+	}
 }
