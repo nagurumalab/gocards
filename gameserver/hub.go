@@ -16,7 +16,7 @@ func NewHub() *Hub {
 }
 
 type createRoomReq struct {
-	name string `json:"name", binding:"required"`
+	Name string `json:"name" binding:"required"`
 }
 
 func (h *Hub) CreateRoom(c *gin.Context) {
@@ -25,7 +25,12 @@ func (h *Hub) CreateRoom(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	room := &GameRoom{Name: input.name, Id: uuid.NewString()}
+	room := &GameRoom{
+		Name:      input.Name,
+		Id:        uuid.NewString(),
+		players:   map[string]Player{},
+		broadcast: make(chan interface{}),
+	}
 	h.rooms[room.Id] = room
 	c.JSON(http.StatusOK, gin.H{"id": room.Id})
 }

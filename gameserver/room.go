@@ -30,24 +30,20 @@ var upgrader = websocket.Upgrader{
 	},
 }
 
-type joinRoomParams struct {
-	roomId     string `uri:"roomId" binding:"required"`
-	playerId   string `form:"playerId"`
-	playerName string `form:"playerName"`
-}
-
 func (h *Hub) JoinRoom(c *gin.Context) {
-	var input joinRoomParams
-	if err := c.ShouldBind(&input); err != nil {
-		c.JSON(400, gin.H{"msg": err.Error()})
-		return
-	}
+	roomId := c.Param("roomId")
+	playerId := c.Query("playerId")
+	playerName := c.Query("playerName")
 
-	log.Debug().Msgf("Input %v", input)
+	log.Debug().Msgf("Join Room Details - %s %s %s", roomId, playerId, playerName)
 
-	room, ok := h.rooms[input.roomId]
+	room, ok := h.rooms[roomId]
 	if !ok {
-		c.JSON(http.StatusNotFound, gin.H{"msg": fmt.Sprintf("Room Not Found - %s", input.roomId)})
+		log.Error().Msgf("Room Not Found %s", roomId)
+		c.JSON(
+			http.StatusNotFound,
+			gin.H{"msg": fmt.Sprintf("Room Not Found - %s", roomId)},
+		)
 	}
 
 	conn, err := upgrader.Upgrade(c.Writer, c.Request, nil)
@@ -55,6 +51,6 @@ func (h *Hub) JoinRoom(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	player := Player{Id: input.playerId, Name: input.playerName, connection: conn}
+	player := Player{Id: playerId, Name: playerName, connection: conn}
 	room.players[player.Id] = player
 }
