@@ -9,7 +9,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/nagurumalab/gocards/handlers"
+	"github.com/nagurumalab/gocards/gameserver"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 )
@@ -20,7 +20,8 @@ func main() {
 	log.Print("Starting the server...")
 	router := gin.Default()
 
-	handlers.AddRoutes(&router.RouterGroup)
+	hub := gameserver.NewHub()
+	gameserver.AddRoutes(router, hub)
 
 	srv := &http.Server{
 		Addr:    ":8080",

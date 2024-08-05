@@ -27,5 +27,15 @@ func (h *Hub) CreateRoom(c *gin.Context) {
 	}
 	room := &GameRoom{Name: input.name, Id: uuid.NewString()}
 	h.rooms[room.Id] = room
-	c.JSON(http.StatusOK, gin.H{"room_id": room.Id})
+	c.JSON(http.StatusOK, gin.H{"id": room.Id})
+}
+
+func (h *Hub) ListRooms(c *gin.Context) {
+	rooms := []map[string]string{}
+
+	for _, r := range h.rooms {
+		rooms = append(rooms, map[string]string{"id": r.Id, "name": r.Name})
+	}
+
+	c.JSON(http.StatusOK, rooms)
 }

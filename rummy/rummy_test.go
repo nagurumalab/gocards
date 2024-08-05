@@ -16,7 +16,7 @@ func TestRummy(t *testing.T) {
 	newGame.HandleEvent(
 		gc.TakeCard{
 			Event:    gc.Event{Player: player_1, Id: uuid.NewString()},
-			FromPile: *newGame.CardPiles[rmy.CLS],
+			FromPile: "Closed",
 			FromTop:  true,
 			NumCards: 1,
 		})
