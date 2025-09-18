@@ -13,7 +13,7 @@ const (
 )
 
 type Rummy struct {
-	gc.Game
+	gc.GameState
 	JokerCard gc.Card
 }
 
@@ -21,7 +21,7 @@ func NewRummy(players map[string]gc.Player) Rummy {
 	log.Info().Msg("Init a new Rummy game")
 	game := gc.NewGame(2, players)
 	log.Info().Msg("Initialized the game")
-	r := Rummy{Game: game}
+	r := Rummy{GameState: game}
 	r.CardPiles = map[string]*gc.Pile{}
 	r.CardPiles[CLS] = &gc.Pile{}
 	r.CardPiles[DSC] = &gc.Pile{}
@@ -89,31 +89,15 @@ func (r *Rummy) Start() {
 	// fmt.Println(r)
 }
 
-func (r *Rummy) HandleEvent(event interface{}) bool {
+func (r *Rummy) CurrentState() {
+}
+
+func (r *Rummy) EventsHandler(event gc.Event) bool {
 	switch event := event.(type) {
-	case gc.TakeCard:
-		r.takecareHandler(event)
-	case gc.DropCard:
-		r.dropcardHandler(event)
+	case TakeCard, DropCard:
+		event.Handle(r)
 	default:
 		log.Error().Msgf("Unsupported Event - %s", event)
 	}
 	return false
-}
-
-func (r *Rummy) takecareHandler(event gc.TakeCard) {
-	log.Debug().Msgf("TakeCard - %v", event)
-	card, _ := r.CardPiles[CLS].GetCardEnd()
-	r.CardPiles[event.Player.Id].PutCardEnd(card)
-}
-
-func (r *Rummy) dropcardHandler(event gc.DropCard) {
-	log.Debug().Msgf("DropCard event - %v", event)
-	found, idx := r.CardPiles[event.Player.Id].SearchCard(event.Card)
-	if !found {
-		log.Error().Msgf("Dropping card not in hand")
-	} else {
-		card, _ := r.CardPiles[event.Player.Id].GetCard(idx)
-		r.DropCard(card)
-	}
 }

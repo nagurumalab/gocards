@@ -1,60 +1,70 @@
 package gocards
 
-type Event struct {
+type Event interface {
+	Handle(Game)
+}
+
+func EventToJson(e Event) string {
+
+}
+
+func JsonToEvent(j string, eventMap map[string]Event)
+
+type BaseEvent struct {
 	Id     string
 	Player Player
 }
 
 type TakeCard struct {
-	Event
+	BaseEvent
 	FromPile string
 	FromTop  bool
 	NumCards int
 }
 
 type DropCard struct {
-	Event
+	BaseEvent
 	ToPile string
 	Card   Card
 }
 
 type ShowCards struct {
-	Event
+	BaseEvent
 	Cards     []Card
 	ToPlayers []Player
 }
 
 type SeenCards struct {
-	Event
+	BaseEvent
 	Show ShowCards
 }
 
 type AskCard struct {
-	Event
+	BaseEvent
 	ToPlayer Player
 	Card     Card
 }
 
 type DenyAsk struct {
-	Event
+	BaseEvent
 	Ask AskCard
 }
 
 type GiveCard struct {
-	Event
+	BaseEvent
 	ToPlayer Player
 }
 
 type GetCard struct {
-	Event
+	BaseEvent
 	FromPlayer Player
 }
 
 type DenyGive struct {
-	Event
+	BaseEvent
 	Give GiveCard
 }
 
 type Declare struct {
-	Event
+	BaseEvent
 }

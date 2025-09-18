@@ -6,19 +6,30 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
+	"github.com/nagurumalab/gocards/gocards"
 	"github.com/rs/zerolog/log"
 )
 
 type GameRoom struct {
-	Id        string
-	Name      string
-	players   map[string]Player
-	broadcast chan interface{}
+	Id          string
+	Name        string
+	players     map[string]Player
+	fromPlayers chan gocards.Event
+	game        gocards.Game
 }
 
-func (s *GameRoom) Run() {
+func (r *GameRoom) Broadcast(e gocards.Event) {
+	for _, player := range r.players {
+		player.SendMsg(e)
+	}
+}
+
+func (r *GameRoom) Run() {
 	for {
-		select {}
+		select {
+		case e := <-r.fromPlayers:
+			r.game.EventsHandler(e)
+		}
 	}
 }
 

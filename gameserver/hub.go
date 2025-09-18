@@ -5,6 +5,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
+	"github.com/nagurumalab/gocards/gocards"
 )
 
 type Hub struct {
@@ -26,10 +27,10 @@ func (h *Hub) CreateRoom(c *gin.Context) {
 		return
 	}
 	room := &GameRoom{
-		Name:      input.Name,
-		Id:        uuid.NewString(),
-		players:   map[string]Player{},
-		broadcast: make(chan interface{}),
+		Name:        input.Name,
+		Id:          uuid.NewString(),
+		players:     map[string]Player{},
+		fromPlayers: make(chan gocards.Event),
 	}
 	h.rooms[room.Id] = room
 	c.JSON(http.StatusOK, gin.H{"id": room.Id})
